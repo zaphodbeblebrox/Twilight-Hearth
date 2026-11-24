@@ -1,0 +1,9 @@
+body { margin: 0; background: #f7f5fa; color: #241c38; font: 17px/1.6 system-ui, sans-serif; }
+header { background: #241c38; padding: 1rem; }
+header a { color: white; font: 1.4rem Georgia, serif; text-decoration: none; }
+main, footer { max-width: 42rem; margin: 0 auto; padding: 1rem; }
+h1, h2 { font-family: Georgia, serif; line-height: 1.2; }
+h2 { margin-top: 2rem; }
+a { color: #b84b18; }
+.button { display: inline-block; background: #b84b18; color: white; padding: 0.6rem 1.2rem; border-radius: 0.5rem; text-decoration: none; }
+footer { border-top: 1px solid #d8d0e4; margin-top: 2rem; }

@@ -1,0 +1,32 @@
+[Unit]
+Description=Twilight Hearth API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=twilight-hearth
+Group=twilight-hearth
+WorkingDirectory=/opt/twilight-hearth/current/backend
+EnvironmentFile=/etc/twilight-hearth/app.env
+ExecStart=/opt/twilight-hearth/current/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8100 --no-access-log
+Restart=on-failure
+RestartSec=3
+MemoryMax=1G
+StateDirectory=twilight-hearth
+StateDirectoryMode=0750
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictSUIDSGID=true
+LockPersonality=true
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

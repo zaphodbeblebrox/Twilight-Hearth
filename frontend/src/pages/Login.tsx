@@ -45,6 +45,10 @@ function SignIn({ heading, code }: { heading: string; code?: string | null }) {
             </div>
           </form>
         )}
+        <p className="mt-6 text-sm">
+          <a className="link" href="/about.html">About</a> · <a className="link" href="/privacy.html">Privacy</a> ·{" "}
+          <a className="link" href="/terms.html">Terms</a>
+        </p>
       </div>
     </main>
   );

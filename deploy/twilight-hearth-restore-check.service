@@ -1,0 +1,8 @@
+[Unit]
+Description=Twilight Hearth restore-check
+After=postgresql.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/twilight-hearth-restore-check

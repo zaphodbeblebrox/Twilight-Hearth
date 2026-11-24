@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Twilight Hearth backup
+
+[Timer]
+OnCalendar=*-*-* 03:50:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
