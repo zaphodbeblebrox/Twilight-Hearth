@@ -1,0 +1,2454 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "Twilight Hearth",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/auth/config": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Auth Config",
+    "operationId": "auth_config_api_auth_config_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AuthConfigOut"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/invite": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Hold Invite",
+    "description": "Remember the invite in the signed, HttpOnly login cookie while visiting Google.",
+    "operationId": "hold_invite_api_auth_invite_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/TokenIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/me": {
+   "get": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Me",
+    "operationId": "me_api_auth_me_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MeOut"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/logout": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Logout",
+    "operationId": "logout_api_auth_logout_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    }
+   }
+  },
+  "/api/admin/invites": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Invites",
+    "operationId": "list_invites_api_admin_invites_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/InviteOut"
+         },
+         "type": "array",
+         "title": "Response List Invites Api Admin Invites Get"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Add Invite",
+    "operationId": "add_invite_api_admin_invites_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/InviteIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InviteCreatedOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/invites/{invite_id}": {
+   "delete": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Revoke Invite",
+    "operationId": "revoke_invite_api_admin_invites__invite_id__delete",
+    "parameters": [
+     {
+      "name": "invite_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Invite Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users": {
+   "get": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "List Users",
+    "operationId": "list_users_api_admin_users_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/AdminUserOut"
+         },
+         "type": "array",
+         "title": "Response List Users Api Admin Users Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users/{user_id}/disable": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Disable User",
+    "operationId": "disable_user_api_admin_users__user_id__disable_post",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/admin/users/{user_id}/enable": {
+   "post": {
+    "tags": [
+     "admin"
+    ],
+    "summary": "Enable User",
+    "operationId": "enable_user_api_admin_users__user_id__enable_post",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "List Recipes",
+    "operationId": "list_recipes_api_recipes_get",
+    "parameters": [
+     {
+      "name": "q",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "maxLength": 200,
+       "default": "",
+       "title": "Q"
+      }
+     },
+     {
+      "name": "tag",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "string",
+       "maxLength": 40,
+       "default": "",
+       "title": "Tag"
+      }
+     },
+     {
+      "name": "owner",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "uuid"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Owner"
+      }
+     },
+     {
+      "name": "favorites",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "boolean",
+       "default": false,
+       "title": "Favorites"
+      }
+     },
+     {
+      "name": "sort",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "enum": [
+        "recent",
+        "rating",
+        "title",
+        "quick"
+       ],
+       "type": "string",
+       "default": "recent",
+       "title": "Sort"
+      }
+     },
+     {
+      "name": "limit",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100,
+       "minimum": 1,
+       "default": 24,
+       "title": "Limit"
+      }
+     },
+     {
+      "name": "offset",
+      "in": "query",
+      "required": false,
+      "schema": {
+       "type": "integer",
+       "maximum": 100000,
+       "minimum": 0,
+       "default": 0,
+       "title": "Offset"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipePage"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Create",
+    "operationId": "create_api_recipes_post",
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecipeCreateIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/tags": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "List Tags",
+    "operationId": "list_tags_api_tags_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/TagOut"
+         },
+         "type": "array",
+         "title": "Response List Tags Api Tags Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/users/{user_id}": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Get User",
+    "operationId": "get_user_api_users__user_id__get",
+    "parameters": [
+     {
+      "name": "user_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "User Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UserOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Get One",
+    "operationId": "get_one_api_recipes__recipe_id__get",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "put": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Update",
+    "operationId": "update_api_recipes__recipe_id__put",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecipeUpdateIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Remove",
+    "operationId": "remove_api_recipes__recipe_id__delete",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/visibility": {
+   "put": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Set Visibility",
+    "operationId": "set_visibility_api_recipes__recipe_id__visibility_put",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/VisibilityIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/revisions": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "List Revisions",
+    "operationId": "list_revisions_api_recipes__recipe_id__revisions_get",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RevisionSummary"
+         },
+         "title": "Response List Revisions Api Recipes  Recipe Id  Revisions Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/revisions/{number}": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Get Revision",
+    "operationId": "get_revision_api_recipes__recipe_id__revisions__number__get",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     },
+     {
+      "name": "number",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "integer",
+       "maximum": 1000000,
+       "minimum": 1,
+       "title": "Number"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RevisionOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/restore": {
+   "post": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Restore",
+    "operationId": "restore_api_recipes__recipe_id__restore_post",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RestoreIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/fork": {
+   "post": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Fork",
+    "description": "Copy a recipe into the user's control, keeping a link back to the exact version.",
+    "operationId": "fork_api_recipes__recipe_id__fork_post",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecipeOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/forks": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "List Forks",
+    "operationId": "list_forks_api_recipes__recipe_id__forks_get",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/RecipeSummary"
+         },
+         "title": "Response List Forks Api Recipes  Recipe Id  Forks Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/favorite": {
+   "put": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Add Favorite",
+    "operationId": "add_favorite_api_recipes__recipe_id__favorite_put",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "delete": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Remove Favorite",
+    "operationId": "remove_favorite_api_recipes__recipe_id__favorite_delete",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/rating": {
+   "put": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Rate",
+    "operationId": "rate_api_recipes__recipe_id__rating_put",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RatingIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/comments": {
+   "get": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "List Comments",
+    "operationId": "list_comments_api_recipes__recipe_id__comments_get",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "type": "array",
+         "items": {
+          "$ref": "#/components/schemas/CommentOut"
+         },
+         "title": "Response List Comments Api Recipes  Recipe Id  Comments Get"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   },
+   "post": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Add Comment",
+    "operationId": "add_comment_api_recipes__recipe_id__comments_post",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     }
+    ],
+    "requestBody": {
+     "required": true,
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CommentIn"
+       }
+      }
+     }
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CommentOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/recipes/{recipe_id}/comments/{comment_id}": {
+   "delete": {
+    "tags": [
+     "recipes"
+    ],
+    "summary": "Remove Comment",
+    "operationId": "remove_comment_api_recipes__recipe_id__comments__comment_id__delete",
+    "parameters": [
+     {
+      "name": "recipe_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Recipe Id"
+      }
+     },
+     {
+      "name": "comment_id",
+      "in": "path",
+      "required": true,
+      "schema": {
+       "type": "string",
+       "format": "uuid",
+       "title": "Comment Id"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/images": {
+   "post": {
+    "tags": [
+     "images"
+    ],
+    "summary": "Upload",
+    "operationId": "upload_api_images_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_upload_api_images_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ImageOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/auth/dev-login": {
+   "post": {
+    "tags": [
+     "auth"
+    ],
+    "summary": "Dev Login",
+    "description": "Stand-in for Google that follows the same invite rules.",
+    "operationId": "dev_login_api_auth_dev_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DevLoginIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "AdminUserOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin"
+     },
+     "disabled_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Disabled At"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "display_name",
+     "email",
+     "is_admin",
+     "disabled_at",
+     "created_at"
+    ],
+    "title": "AdminUserOut"
+   },
+   "AuthConfigOut": {
+    "properties": {
+     "google": {
+      "type": "boolean",
+      "title": "Google"
+     },
+     "dev_login": {
+      "type": "boolean",
+      "title": "Dev Login"
+     }
+    },
+    "type": "object",
+    "required": [
+     "google",
+     "dev_login"
+    ],
+    "title": "AuthConfigOut"
+   },
+   "Body_upload_api_images_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_upload_api_images_post"
+   },
+   "CommentIn": {
+    "properties": {
+     "body": {
+      "type": "string",
+      "maxLength": 5000,
+      "minLength": 1,
+      "title": "Body"
+     }
+    },
+    "type": "object",
+    "required": [
+     "body"
+    ],
+    "title": "CommentIn"
+   },
+   "CommentOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "author": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "body": {
+      "type": "string",
+      "title": "Body"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "author",
+     "body",
+     "created_at"
+    ],
+    "title": "CommentOut"
+   },
+   "DevLoginIn": {
+    "properties": {
+     "email": {
+      "type": "string",
+      "maxLength": 320,
+      "pattern": "^[^@\\s]+@[^@\\s]+$",
+      "title": "Email"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "email",
+     "name"
+    ],
+    "title": "DevLoginIn"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "ImageOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id"
+    ],
+    "title": "ImageOut"
+   },
+   "Ingredient": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-]{1,40}$",
+      "title": "Id"
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Text"
+     },
+     "quantity": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Quantity"
+     },
+     "quantity_max": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Quantity Max"
+     },
+     "unit": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unit"
+     },
+     "food": {
+      "type": "string",
+      "title": "Food",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "text"
+    ],
+    "title": "Ingredient"
+   },
+   "IngredientGroup": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-]{1,40}$",
+      "title": "Id"
+     },
+     "name": {
+      "type": "string",
+      "maxLength": 100,
+      "title": "Name",
+      "default": ""
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/Ingredient"
+      },
+      "type": "array",
+      "maxItems": 200,
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id"
+    ],
+    "title": "IngredientGroup"
+   },
+   "InviteCreatedOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expires At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     },
+     "used_by_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Used By Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "expires_at",
+     "revoked_at",
+     "used_by_id",
+     "created_at",
+     "url"
+    ],
+    "title": "InviteCreatedOut"
+   },
+   "InviteIn": {
+    "properties": {
+     "email": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 320,
+        "pattern": "^[^@\\s]+@[^@\\s]+$"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     }
+    },
+    "type": "object",
+    "title": "InviteIn"
+   },
+   "InviteOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Expires At"
+     },
+     "revoked_at": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "date-time"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revoked At"
+     },
+     "used_by_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Used By Id"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "email",
+     "expires_at",
+     "revoked_at",
+     "used_by_id",
+     "created_at"
+    ],
+    "title": "InviteOut"
+   },
+   "MeOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "email": {
+      "type": "string",
+      "title": "Email"
+     },
+     "is_admin": {
+      "type": "boolean",
+      "title": "Is Admin"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "display_name",
+     "email",
+     "is_admin"
+    ],
+    "title": "MeOut"
+   },
+   "RatingIn": {
+    "properties": {
+     "stars": {
+      "type": "integer",
+      "maximum": 5.0,
+      "minimum": 1.0,
+      "title": "Stars"
+     }
+    },
+    "type": "object",
+    "required": [
+     "stars"
+    ],
+    "title": "RatingIn"
+   },
+   "RecipeContent": {
+    "properties": {
+     "schema_version": {
+      "type": "integer",
+      "const": 1,
+      "title": "Schema Version",
+      "default": 1
+     },
+     "title": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "maxLength": 5000,
+      "title": "Description",
+      "default": ""
+     },
+     "servings": {
+      "anyOf": [
+       {
+        "type": "number",
+        "maximum": 10000.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Servings"
+     },
+     "yield_note": {
+      "type": "string",
+      "maxLength": 100,
+      "title": "Yield Note",
+      "default": ""
+     },
+     "prep_minutes": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 100000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Prep Minutes"
+     },
+     "cook_minutes": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "maximum": 100000.0,
+        "minimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cook Minutes"
+     },
+     "tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "maxItems": 20,
+      "title": "Tags"
+     },
+     "image_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Image Id"
+     },
+     "source_name": {
+      "type": "string",
+      "maxLength": 200,
+      "title": "Source Name",
+      "default": ""
+     },
+     "source_url": {
+      "type": "string",
+      "maxLength": 2000,
+      "title": "Source Url",
+      "default": ""
+     },
+     "ingredient_groups": {
+      "items": {
+       "$ref": "#/components/schemas/IngredientGroup"
+      },
+      "type": "array",
+      "maxItems": 30,
+      "title": "Ingredient Groups"
+     },
+     "steps": {
+      "items": {
+       "$ref": "#/components/schemas/Step"
+      },
+      "type": "array",
+      "maxItems": 200,
+      "title": "Steps"
+     },
+     "notes": {
+      "type": "string",
+      "maxLength": 10000,
+      "title": "Notes",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "title"
+    ],
+    "title": "RecipeContent"
+   },
+   "RecipeCreateIn": {
+    "properties": {
+     "content": {
+      "$ref": "#/components/schemas/RecipeContent"
+     },
+     "visibility": {
+      "type": "string",
+      "enum": [
+       "members",
+       "private"
+      ],
+      "title": "Visibility",
+      "default": "members"
+     },
+     "message": {
+      "type": "string",
+      "maxLength": 200,
+      "title": "Message",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "content"
+    ],
+    "title": "RecipeCreateIn"
+   },
+   "RecipeOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tags"
+     },
+     "image_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Image Id"
+     },
+     "total_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total Minutes"
+     },
+     "visibility": {
+      "type": "string",
+      "enum": [
+       "members",
+       "private"
+      ],
+      "title": "Visibility"
+     },
+     "owner": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "is_fork": {
+      "type": "boolean",
+      "title": "Is Fork",
+      "default": false
+     },
+     "rating": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rating"
+     },
+     "rating_count": {
+      "type": "integer",
+      "title": "Rating Count",
+      "default": 0
+     },
+     "is_favorite": {
+      "type": "boolean",
+      "title": "Is Favorite",
+      "default": false
+     },
+     "content": {
+      "$ref": "#/components/schemas/RecipeContent"
+     },
+     "current_number": {
+      "type": "integer",
+      "title": "Current Number"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceOut"
+      },
+      "type": "array",
+      "title": "Sources"
+     },
+     "fork_count": {
+      "type": "integer",
+      "title": "Fork Count"
+     },
+     "my_rating": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "My Rating"
+     },
+     "can_edit": {
+      "type": "boolean",
+      "title": "Can Edit"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "title",
+     "description",
+     "tags",
+     "image_id",
+     "total_minutes",
+     "visibility",
+     "owner",
+     "updated_at",
+     "content",
+     "current_number",
+     "created_at",
+     "sources",
+     "fork_count",
+     "my_rating",
+     "can_edit"
+    ],
+    "title": "RecipeOut"
+   },
+   "RecipePage": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/RecipeSummary"
+      },
+      "type": "array",
+      "title": "Items"
+     },
+     "total": {
+      "type": "integer",
+      "title": "Total"
+     }
+    },
+    "type": "object",
+    "required": [
+     "items",
+     "total"
+    ],
+    "title": "RecipePage"
+   },
+   "RecipeSummary": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description"
+     },
+     "tags": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tags"
+     },
+     "image_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Image Id"
+     },
+     "total_minutes": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total Minutes"
+     },
+     "visibility": {
+      "type": "string",
+      "enum": [
+       "members",
+       "private"
+      ],
+      "title": "Visibility"
+     },
+     "owner": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Updated At"
+     },
+     "is_fork": {
+      "type": "boolean",
+      "title": "Is Fork",
+      "default": false
+     },
+     "rating": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rating"
+     },
+     "rating_count": {
+      "type": "integer",
+      "title": "Rating Count",
+      "default": 0
+     },
+     "is_favorite": {
+      "type": "boolean",
+      "title": "Is Favorite",
+      "default": false
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "title",
+     "description",
+     "tags",
+     "image_id",
+     "total_minutes",
+     "visibility",
+     "owner",
+     "updated_at"
+    ],
+    "title": "RecipeSummary"
+   },
+   "RecipeUpdateIn": {
+    "properties": {
+     "content": {
+      "$ref": "#/components/schemas/RecipeContent"
+     },
+     "base_number": {
+      "type": "integer",
+      "title": "Base Number"
+     },
+     "message": {
+      "type": "string",
+      "maxLength": 200,
+      "title": "Message",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "content",
+     "base_number"
+    ],
+    "title": "RecipeUpdateIn"
+   },
+   "RestoreIn": {
+    "properties": {
+     "number": {
+      "type": "integer",
+      "title": "Number"
+     },
+     "base_number": {
+      "type": "integer",
+      "title": "Base Number"
+     }
+    },
+    "type": "object",
+    "required": [
+     "number",
+     "base_number"
+    ],
+    "title": "RestoreIn"
+   },
+   "RevisionOut": {
+    "properties": {
+     "number": {
+      "type": "integer",
+      "title": "Number"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "author": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     },
+     "content": {
+      "$ref": "#/components/schemas/RecipeContent"
+     }
+    },
+    "type": "object",
+    "required": [
+     "number",
+     "message",
+     "author",
+     "created_at",
+     "content"
+    ],
+    "title": "RevisionOut"
+   },
+   "RevisionSummary": {
+    "properties": {
+     "number": {
+      "type": "integer",
+      "title": "Number"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "author": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Created At"
+     }
+    },
+    "type": "object",
+    "required": [
+     "number",
+     "message",
+     "author",
+     "created_at"
+    ],
+    "title": "RevisionSummary"
+   },
+   "SourceOut": {
+    "properties": {
+     "available": {
+      "type": "boolean",
+      "title": "Available"
+     },
+     "owner": {
+      "$ref": "#/components/schemas/UserOut"
+     },
+     "recipe_id": {
+      "anyOf": [
+       {
+        "type": "string",
+        "format": "uuid"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recipe Id"
+     },
+     "title": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     },
+     "number": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Number"
+     }
+    },
+    "type": "object",
+    "required": [
+     "available",
+     "owner"
+    ],
+    "title": "SourceOut",
+    "description": "Credit for a recipe in this one's ancestry.\n\nrecipe_id, title and number are withheld when the viewer may not see that recipe."
+   },
+   "Step": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9-]{1,40}$",
+      "title": "Id"
+     },
+     "text": {
+      "type": "string",
+      "maxLength": 5000,
+      "minLength": 1,
+      "title": "Text"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "text"
+    ],
+    "title": "Step"
+   },
+   "TagOut": {
+    "properties": {
+     "tag": {
+      "type": "string",
+      "title": "Tag"
+     },
+     "count": {
+      "type": "integer",
+      "title": "Count"
+     }
+    },
+    "type": "object",
+    "required": [
+     "tag",
+     "count"
+    ],
+    "title": "TagOut"
+   },
+   "TokenIn": {
+    "properties": {
+     "token": {
+      "type": "string",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Token"
+     }
+    },
+    "type": "object",
+    "required": [
+     "token"
+    ],
+    "title": "TokenIn"
+   },
+   "UserOut": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "format": "uuid",
+      "title": "Id"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "display_name"
+    ],
+    "title": "UserOut"
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "VisibilityIn": {
+    "properties": {
+     "visibility": {
+      "type": "string",
+      "enum": [
+       "members",
+       "private"
+      ],
+      "title": "Visibility"
+     }
+    },
+    "type": "object",
+    "required": [
+     "visibility"
+    ],
+    "title": "VisibilityIn"
+   }
+  }
+ }
+}
