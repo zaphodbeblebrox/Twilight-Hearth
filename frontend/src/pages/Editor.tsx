@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { ApiError, api, imageUrl, useApi, type Content, type Imported, type Recipe } from "../api";
 import { Problem } from "../components";
+import { sections } from "../sections";
 import { ImportDialog } from "./Import";
 
 type Row = { id: string; text: string };
@@ -10,19 +11,19 @@ type Group = { id: string; name: string; items: Row[] };
 type Draft = Omit<Content, "ingredient_groups" | "steps" | "tags"> & {
   tags: string;
   ingredient_groups: Group[];
-  steps: Row[];
+  step_groups: Group[];
 };
 
 const row = (text = ""): Row => ({ id: crypto.randomUUID(), text });
-const group = (): Group => ({ id: crypto.randomUUID(), name: "", items: [row(), row(), row()] });
+const group = (rows = 3): Group => ({ id: crypto.randomUUID(), name: "", items: Array.from({ length: rows }, () => row()) });
 
 const blank = (): Draft => ({
   schema_version: 1, title: "", description: "", servings: null, yield_note: "",
   prep_minutes: null, cook_minutes: null, tags: "", image_id: null, source_name: "",
-  source_url: "", ingredient_groups: [group()], steps: [row()], notes: "",
+  source_url: "", ingredient_groups: [group()], step_groups: [group(1)], notes: "",
 });
 
-function toDraft(content: Recipe["content"]): Draft {
+function toDraft({ steps, ...content }: Recipe["content"]): Draft {
   return {
     ...blank(),
     ...content,
@@ -30,11 +31,13 @@ function toDraft(content: Recipe["content"]): Draft {
     ingredient_groups: content.ingredient_groups?.map((g) => ({
       id: g.id, name: g.name ?? "", items: g.items?.map(({ id, text }) => ({ id, text })) ?? [],
     })) ?? [],
-    steps: content.steps ?? [],
+    step_groups: sections(steps ?? []).map((s) => ({
+      id: crypto.randomUUID(), name: s.name, items: s.steps.map(({ id, text }) => ({ id, text })),
+    })),
   };
 }
 
-function toContent(draft: Draft) {
+function toContent({ step_groups, ...draft }: Draft) {
   const filled = (rows: Row[]) => rows.filter((r) => r.text.trim());
   return {
     ...draft,
@@ -42,7 +45,7 @@ function toContent(draft: Draft) {
     ingredient_groups: draft.ingredient_groups
       .map((g) => ({ ...g, items: filled(g.items) }))
       .filter((g) => g.items.length || g.name.trim()),
-    steps: filled(draft.steps),
+    steps: step_groups.flatMap((g) => filled(g.items).map((r) => ({ ...r, section: g.name.trim() }))),
   };
 }
 
@@ -102,7 +105,7 @@ function Form({ recipe }: { recipe?: Recipe }) {
       // Keep a photo that was already added, and somewhere to type what was not found.
       image_id: imported.image_id ?? old.image_id,
       ingredient_groups: imported.ingredient_groups.length ? imported.ingredient_groups : [group()],
-      steps: imported.steps.length ? imported.steps : [row()],
+      step_groups: imported.step_groups.length ? imported.step_groups : [group(1)],
     }));
     setNotice(notice ?? "");
     setError(null);
@@ -110,8 +113,8 @@ function Form({ recipe }: { recipe?: Recipe }) {
   }
 
   function startImport() {
-    const { title, description, notes, ingredient_groups, steps } = draft;
-    const rows = [...ingredient_groups.flatMap((g) => g.items), ...steps];
+    const { title, description, notes, ingredient_groups, step_groups } = draft;
+    const rows = [...ingredient_groups, ...step_groups].flatMap((g) => g.items);
     const written = [title, description, notes, ...rows.map((r) => r.text)].some((t) => t.trim());
     if (!written || window.confirm("Importing replaces what is on this page. Continue?")) setImporting(true);
   }
@@ -127,8 +130,6 @@ function Form({ recipe }: { recipe?: Recipe }) {
   }
 
   const number = (value: string) => (value === "" ? null : Number(value));
-  const setGroup = (index: number, part: Partial<Group>) =>
-    set({ ingredient_groups: draft.ingredient_groups.map((g, i) => (i === index ? { ...g, ...part } : g)) });
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
@@ -165,22 +166,13 @@ function Form({ recipe }: { recipe?: Recipe }) {
 
       <fieldset>
         <legend className="text-2xl font-display">Ingredients</legend>
-        <p className="text-sm text-dusk-500">One per line. You can paste a whole list into a box.</p>
-        {draft.ingredient_groups.map((g, index) => (
-          <div key={g.id} className="card mt-3 p-3">
-            <div className="mb-2 flex gap-2">
-              <input className="field" aria-label="Group name" placeholder="Group name (optional), such as For the sauce" value={g.name} onChange={(e) => setGroup(index, { name: e.target.value })} />
-              <button type="button" className="btn" onClick={() => set({ ingredient_groups: draft.ingredient_groups.filter((x) => x !== g) })}>Remove</button>
-            </div>
-            <Rows label="Ingredient" rows={g.items} onChange={(items) => setGroup(index, { items })} />
-          </div>
-        ))}
-        <button type="button" className="btn mt-2" onClick={() => set({ ingredient_groups: [...draft.ingredient_groups, group()] })}>Add group</button>
+        <p className="text-sm text-dusk-500">One per line. You can paste a whole list into a box. Use sections for parts such as a filling and a topping.</p>
+        <Sections label="Ingredient" example="For the sauce" groups={draft.ingredient_groups} onChange={(ingredient_groups) => set({ ingredient_groups })} />
       </fieldset>
 
       <fieldset>
-        <legend className="mb-2 text-2xl font-display">Method</legend>
-        <Rows label="Step" long rows={draft.steps} onChange={(steps) => set({ steps })} />
+        <legend className="text-2xl font-display">Method</legend>
+        <Sections label="Step" long example="Make the sauce" groups={draft.step_groups} onChange={(step_groups) => set({ step_groups })} />
       </fieldset>
 
       <Field label="Notes"><textarea className="field" rows={3} value={draft.notes} onChange={(e) => set({ notes: e.target.value })} /></Field>
@@ -215,6 +207,33 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="label">{label}</span>
       {children}
     </label>
+  );
+}
+
+function Sections({ label, example, long, groups, onChange }: {
+  label: string; example: string; long?: boolean; groups: Group[]; onChange: (groups: Group[]) => void;
+}) {
+  const update = (index: number, part: Partial<Group>) =>
+    onChange(groups.map((g, i) => (i === index ? { ...g, ...part } : g)));
+
+  function remove(target: Group) {
+    const filled = target.items.some((r) => r.text.trim());
+    if (!filled || window.confirm("Remove this section and everything in it?")) onChange(groups.filter((g) => g !== target));
+  }
+
+  return (
+    <>
+      {groups.map((g, index) => (
+        <div key={g.id} className="card mt-3 p-3">
+          <div className="mb-2 flex gap-2">
+            <input className="field" maxLength={100} aria-label={`${label} section ${index + 1} name`} placeholder={`Section name (optional), such as ${example}`} value={g.name} onChange={(e) => update(index, { name: e.target.value })} />
+            <button type="button" className="btn" aria-label={`Remove ${label.toLowerCase()} section ${index + 1}`} onClick={() => remove(g)}>Remove</button>
+          </div>
+          <Rows label={label} long={long} rows={g.items} onChange={(items) => update(index, { items })} />
+        </div>
+      ))}
+      <button type="button" className="btn mt-2" onClick={() => onChange([...groups, group(long ? 1 : 3)])}>Add {label.toLowerCase()} section</button>
+    </>
   );
 }
 

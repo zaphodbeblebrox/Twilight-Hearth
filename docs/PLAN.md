@@ -86,7 +86,7 @@ Google proves who someone is; an invite decides whether they may join.
 - source: URL, book, or person, plus the original author
 - ingredient groups, each with ingredients:
   stable id, original text, quantity (exact decimal/fraction, optional max), unit, food, note
-- steps: stable id, text, optional ingredient ids
+- steps: stable id, text, optional section name (neighbours with the same name are one section)
 - notes, `schema_version`
 
 Stable ids let a diff tell "changed" from "removed and added". Original text is always

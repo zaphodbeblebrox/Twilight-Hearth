@@ -25,6 +25,7 @@ from pydantic import BaseModel
 from pypdf import PdfReader
 from recipe_scrapers import scrape_html
 
+from . import ingredients
 from .config import get_settings
 from .routers.images import clean_image
 from .schemas import RecipeContent, strip_nul
@@ -48,7 +49,10 @@ complete anything missing. Leave text empty and numbers null when the source doe
 - prep_minutes and cook_minutes: whole minutes.
 - ingredient_groups: one ingredient per item, amount first, like "1 1/2 cups flour, sifted". \
 Use one group with an empty name unless the source has sections.
-- steps: one per item, without numbering.
+- step_groups: the method, one step per item, without numbering. Use one group with an empty \
+name unless the source has sections.
+- A part with its own ingredients, such as a topping or sauce, is a section of its own in both \
+ingredient_groups and step_groups, even if the source puts it among its notes.
 - notes: tips, storage and substitutions from the recipe.
 - tags: at most 5 short ones, such as course, cuisine or diet, that the source clearly supports.
 - source_name: the author, book or publication, if shown."""
@@ -70,18 +74,18 @@ class Draft(BaseModel):
     prep_minutes: int | None
     cook_minutes: int | None
     ingredient_groups: list[DraftGroup]
-    steps: list[str]
+    step_groups: list[DraftGroup]
     notes: str
     tags: list[str]
     source_name: str
 
     @property
     def usable(self) -> bool:
-        return self.found and bool(self.ingredient_groups or self.steps)
+        return self.found and bool(self.ingredient_groups or self.step_groups)
 
     @property
     def complete(self) -> bool:
-        return self.found and bool(self.ingredient_groups and self.steps)
+        return self.found and bool(self.ingredient_groups and self.step_groups)
 
 
 @dataclass
@@ -276,7 +280,21 @@ def scraped_draft(scraper) -> Draft:
 
     tags = ",".join(plain(quiet(call)) for call in (scraper.category, scraper.cuisine))
     credit = [plain(quiet(scraper.author)), plain(quiet(scraper.site_name))]
-    notes = quiet(scraper.notes)
+    steps = [s for step in quiet(scraper.instructions_list) or [] if (s := plain(step))]
+    step_groups = schema_sections(scraper) or [DraftGroup(name="", items=steps)]
+    step_groups = [g for g in step_groups if g.items]
+    groups = [g for g in groups if g.items]
+
+    found = quiet(scraper.notes)
+    notes = [n for note in found if (n := plain(note))] if isinstance(found, list) else []
+    # Without a main recipe, what is in the notes cannot be a part of it.
+    if groups and step_groups:
+        extra, extra_steps, notes = parts_in_notes(notes)
+        if extra and len(groups) == len(step_groups) == 1 and not step_groups[0].name:
+            # Now that there are several sections, the main method needs its name too.
+            step_groups[0].name = groups[0].name
+        groups += extra
+        step_groups += extra_steps
     return Draft(
         found=True,
         title=plain(quiet(scraper.title)),
@@ -285,12 +303,89 @@ def scraped_draft(scraper) -> Draft:
         yield_note="" if serves else made,
         prep_minutes=prep,
         cook_minutes=cook,
-        ingredient_groups=[g for g in groups if g.items],
-        steps=[s for step in quiet(scraper.instructions_list) or [] if (s := plain(step))],
-        notes="\n".join(plain(n) for n in notes) if isinstance(notes, list) else "",
+        ingredient_groups=groups,
+        step_groups=step_groups,
+        notes="\n".join(notes),
         tags=tags.split(",")[:8],
         source_name=", ".join(dict.fromkeys(c for c in credit if c)),
     )
+
+
+def schema_sections(scraper) -> list[DraftGroup]:
+    """The method's sections, if the page marks them as such."""
+
+    def texts(node) -> list[str]:
+        if isinstance(node, str):
+            return [text] if (text := plain(node)) else []
+        if isinstance(node, list):
+            return [text for item in node for text in texts(item)]
+        if not isinstance(node, dict):
+            return []
+        return texts(node.get("itemListElement")) or texts(node.get("text") or node.get("name"))
+
+    nodes = scraper.schema.data.get("recipeInstructions")
+    nodes = nodes if isinstance(nodes, list) else [nodes]
+    sections: list[DraftGroup] = []
+    for node in nodes:
+        is_section = isinstance(node, dict) and node.get("@type") == "HowToSection"
+        name = plain(node.get("name")).rstrip(":") if is_section else ""
+        if not (items := texts(node)):
+            continue
+        if sections and sections[-1].name == name:
+            sections[-1].items += items
+        else:
+            sections.append(DraftGroup(name=name, items=items))
+    return sections if len(sections) > 1 else []
+
+
+# Headings whose lists are advice rather than ingredients.
+ADVICE = re.compile(
+    r"stor|freez|reheat|ahead|tip|note|nutrition|variation|substitut|equipment|serv|left", re.I
+)
+TIME = re.compile(r"(second|minute|min|hour|hr|day|week|month)s?\b", re.I)
+CREDIT = re.compile(r"\b(recipe|adapted|inspired|source)\b.*\b(from|by)\b", re.I)
+
+
+def parts_in_notes(
+    notes: list[str],
+) -> tuple[list[DraftGroup], list[DraftGroup], list[str]]:
+    """Take out parts such as a topping: a heading, a list of amounts, then its method."""
+
+    def amount(line: str) -> dict | None:
+        parsed = ingredients.parse(line)
+        ok = parsed["quantity"] and len(line) <= 120 and not TIME.match(parsed["food"])
+        return parsed if ok else None
+
+    groups, step_groups, rest = [], [], []
+    at = 0
+    while at < len(notes):
+        heading = notes[at]
+        end = at + 1
+        while end < len(notes) and amount(notes[end]):
+            end += 1
+        items = notes[at + 1 : end]
+        is_part = (
+            heading.endswith(":")
+            and len(heading) <= 100
+            and not ADVICE.search(heading)
+            and len(items) >= 2
+            and any(amount(i)["unit"] for i in items)
+        )
+        if not is_part:
+            rest.append(heading)
+            at += 1
+            continue
+        at = end
+        # Its method ends at the next heading, "Label: text", or credit line.
+        while at < len(notes) and not (
+            re.match(r"[^.:]{1,60}:(\s|$)", notes[at]) or CREDIT.search(notes[at])
+        ):
+            at += 1
+        name = heading.rstrip(": ")
+        groups.append(DraftGroup(name=name, items=items))
+        if notes[end:at]:
+            step_groups.append(DraftGroup(name=name, items=notes[end:at]))
+    return groups, step_groups, rest
 
 
 def to_content(draft: Draft, url: str = "") -> RecipeContent:
@@ -307,7 +402,10 @@ def to_content(draft: Draft, url: str = "") -> RecipeContent:
     for group in draft.ingredient_groups[:30]:
         if items := rows([" ".join(i.split())[:500] for i in group.items], 200):
             groups.append({"id": str(uuid4()), "name": group.name.strip()[:100], "items": items})
-    parts = [s[i : i + 5000] for s in draft.steps for i in range(0, len(s), 5000)]
+    steps = []
+    for group in draft.step_groups:
+        parts = [s[i : i + 5000] for s in group.items for i in range(0, len(s), 5000)]
+        steps += [r | {"section": group.name.strip()[:100]} for r in rows(parts, 200)]
     content = {
         "title": draft.title.strip()[:200] or "Untitled recipe",
         "description": draft.description[:5000],
@@ -319,7 +417,7 @@ def to_content(draft: Draft, url: str = "") -> RecipeContent:
         "source_name": draft.source_name[:200],
         "source_url": url if len(url) <= 2000 else "",
         "ingredient_groups": groups,
-        "steps": rows(parts, 200),
+        "steps": steps[:200],
         "notes": draft.notes[:10_000],
     }
     return RecipeContent.model_validate(content)

@@ -64,6 +64,8 @@ class IngredientGroup(Clean):
 class Step(Clean):
     id: ItemId
     text: Paragraph
+    # Consecutive steps with the same name are shown together under it.
+    section: Annotated[str, StringConstraints(strip_whitespace=True)] = Field("", max_length=100)
 
 
 class RecipeContent(Clean):

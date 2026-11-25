@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { api, imageUrl, useApi, type Comment, type Me, type Recipe, type Summary } from "../api";
 import { Problem } from "../components";
 import { minutes, scaled } from "../quantity";
+import { sections } from "../sections";
 
 export function RecipeView({ me }: { me: Me }) {
   const { id } = useParams();
@@ -117,9 +118,14 @@ function Loaded({ recipe, me }: { recipe: Recipe; me: Me }) {
         </section>
         <section>
           <h2 className="text-2xl">Method</h2>
-          <ol className="mt-3 list-decimal space-y-3 pl-6">
-            {content.steps?.map((step) => <li key={step.id} className="whitespace-pre-line">{step.text}</li>)}
-          </ol>
+          {sections(content.steps ?? []).map((section) => (
+            <div key={section.steps[0].id} className="mt-3">
+              {section.name && <h3 className="font-semibold">{section.name}</h3>}
+              <ol className="mt-2 list-decimal space-y-3 pl-6">
+                {section.steps.map((step) => <li key={step.id} className="whitespace-pre-line">{step.text}</li>)}
+              </ol>
+            </div>
+          ))}
           {content.notes && (
             <>
               <h2 className="mt-6 text-2xl">Notes</h2>

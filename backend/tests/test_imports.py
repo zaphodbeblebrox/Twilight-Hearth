@@ -46,7 +46,7 @@ DRAFT = {
     "prep_minutes": None,
     "cook_minutes": 5,
     "ingredient_groups": [{"name": "", "items": ["2 eggs", " "]}],
-    "steps": ["Fry.", "x" * 6000],
+    "step_groups": [{"name": "Eggs", "items": ["Fry.", "x" * 6000]}],
     "notes": "",
     "tags": ["Breakfast"],
     "source_name": "Gran",
@@ -254,6 +254,7 @@ def test_photo_is_cleaned_and_read(join, db, model):
     assert draft["title"] == "Card" and draft["servings"] is None
     assert len(draft["ingredient_groups"][0]["items"]) == 1
     assert [len(s["text"]) for s in draft["steps"]] == [4, 5000, 1000]
+    assert {s["section"] for s in draft["steps"]} == {"Eggs"}
     request = model.calls[0]
     assert request["model"] == get_settings().import_model
     assert request["messages"][0]["content"][0]["source"]["media_type"] == "image/webp"
@@ -359,3 +360,46 @@ def test_imports_need_login_and_a_free_slot(join):
         for _ in range(4):
             imports.slots.release()
     assert send(ann, PAGE.encode()).status_code == 200
+
+
+def test_marked_method_sections_are_kept(join):
+    def section(name, *steps):
+        items = [{"@type": "HowToStep", "text": s} for s in steps]
+        return {"@type": "HowToSection", "name": name, "itemListElement": items}
+
+    method = [section("Cake:", "Mix.", "Bake."), section("Icing", "Beat.")]
+    response = send(join("ann"), json.dumps(SCHEMA | {"recipeInstructions": method}).encode())
+    steps = response.json()["content"]["steps"]
+    assert [(s["section"], s["text"]) for s in steps] == [
+        ("Cake", "Mix."),
+        ("Cake", "Bake."),
+        ("Icing", "Beat."),
+    ]
+
+
+def test_parts_in_notes_become_sections(join):
+    notes = [
+        "<span><b>Pan:</b> Use a deep one.</span>",
+        "<span>Storage:</span><ul><li>3 days in the fridge</li><li>2 cups fit a jar</li></ul>",
+        "<span>Pecan Topping:</span><ul><li>½ cup sugar</li><li>2 pecans</li></ul>",
+        "<span>Boil the sugar.</span><span>Add pecans.</span>",
+        "<span>Filling recipe is from Libby.</span>",
+    ]
+    page = f'{PAGE}<div class="wprm-recipe-notes">{"".join(notes)}</div></html>'
+    draft = send(join("ann"), page.encode()).json()["content"]
+    assert [g["name"] for g in draft["ingredient_groups"]] == ["", "Pecan Topping"]
+    assert [i["text"] for i in draft["ingredient_groups"][1]["items"]] == [
+        "½ cup sugar",
+        "2 pecans",
+    ]
+    assert [(s["section"], s["text"]) for s in draft["steps"]][2:] == [
+        ("Pecan Topping", "Boil the sugar."),
+        ("Pecan Topping", "Add pecans."),
+    ]
+    assert draft["notes"].split("\n") == [
+        "Pan: Use a deep one.",
+        "Storage:",
+        "3 days in the fridge",
+        "2 cups fit a jar",
+        "Filling recipe is from Libby.",
+    ]

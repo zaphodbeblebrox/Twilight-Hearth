@@ -265,6 +265,16 @@ def test_bad_uploads_are_refused(join):
 # Validation
 
 
+def test_method_sections_are_saved_and_optional(join):
+    steps = [
+        {"id": "s1", "text": "Bake.", "section": " Pie "},
+        {"id": "s2", "text": "Boil.", "section": "Topping"},
+        {"id": "s3", "text": "Serve."},
+    ]
+    saved = make_recipe(join("ann"), steps=steps)["content"]["steps"]
+    assert [s["section"] for s in saved] == ["Pie", "Topping", ""]
+
+
 def test_content_validation(join):
     ann = join("ann")
     duplicate = [{"id": "s1", "text": "a"}, {"id": "s1", "text": "b"}]

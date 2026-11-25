@@ -2460,6 +2460,12 @@
       "maxLength": 5000,
       "minLength": 1,
       "title": "Text"
+     },
+     "section": {
+      "type": "string",
+      "maxLength": 100,
+      "title": "Section",
+      "default": ""
      }
     },
     "type": "object",

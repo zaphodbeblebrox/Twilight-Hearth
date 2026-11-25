@@ -20,7 +20,10 @@ function lines(content: Content): Map<string, [label: string, text: string]> {
     add(group.id, "Ingredient group", group.name);
     for (const item of group.items ?? []) add(item.id, "Ingredient", item.text);
   }
-  for (const step of content.steps ?? []) add(step.id, "Step", step.text);
+  for (const step of content.steps ?? []) {
+    add(`section:${step.section ?? ""}`, "Method section", step.section);
+    add(step.id, "Step", step.text);
+  }
   add("field:notes", "Notes", content.notes);
   return out;
 }
@@ -46,6 +49,12 @@ export function diff(before: Content, after: Content): Change[] {
     const y = order(after);
     const moved = x.filter((id) => y.includes(id)).join() !== y.filter((id) => x.includes(id)).join();
     if (moved) changes.push({ label: `Order of ${kind}`, before: "", after: "Reordered" });
+  }
+  // Adding, removing or renaming a section is listed above, so this is only for moves.
+  const sectionOf = new Map((before.steps ?? []).map((s) => [s.id, s.section ?? ""]));
+  const changedSection = (after.steps ?? []).some((s) => sectionOf.has(s.id) && sectionOf.get(s.id) !== (s.section ?? ""));
+  if (changedSection && !changes.some((c) => c.label === "Method section")) {
+    changes.push({ label: "Sections of steps", before: "", after: "Steps moved between sections" });
   }
   return changes;
 }

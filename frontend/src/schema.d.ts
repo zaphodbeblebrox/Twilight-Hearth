@@ -930,6 +930,11 @@ export interface components {
             id: string;
             /** Text */
             text: string;
+            /**
+             * Section
+             * @default
+             */
+            section: string;
         };
         /** TagOut */
         TagOut: {
