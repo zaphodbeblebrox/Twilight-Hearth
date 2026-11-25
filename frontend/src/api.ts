@@ -15,6 +15,7 @@ export type AdminUser = Schemas["AdminUserOut"];
 export type RecipePage = Schemas["RecipePage"];
 export type Tag = Schemas["TagOut"];
 export type AuthConfig = Schemas["AuthConfigOut"];
+export type Imported = Schemas["ImportOut"];
 export type User = Schemas["UserOut"];
 
 export class ApiError extends Error {

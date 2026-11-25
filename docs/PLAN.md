@@ -18,7 +18,7 @@ Hosted on `twilight` at twilight-hearth.net.
 | Visibility | Visible to all members by default; optional private | Decided |
 | Community groups | Future: members form groups with selected users | Decided |
 | Photo import | Hosted vision model, with spending cap | Decided |
-| Vision model | Claude Haiku 5.5, retry with Sonnet 5.5; confirm by testing | Proposed |
+| Vision model | Claude Haiku 5.5, retry with Sonnet 5.5; still to confirm by testing | Built |
 
 ## Stack
 
@@ -26,8 +26,7 @@ Hosted on `twilight` at twilight-hearth.net.
 - **Backend:** FastAPI, Pydantic, SQLAlchemy 2, Alembic, managed with `uv`.
 - **Database:** PostgreSQL 18 (already on twilight), dedicated database and user.
 - **Login:** Google OpenID Connect, using Authlib.
-- **Jobs:** Procrastinate, a Postgres-backed queue (no Redis).
-- **Import:** `recipe-scrapers`, `ingredient-parser`, hosted vision model.
+- **Import:** `recipe-scrapers`, hosted vision model.
 
 Why FastAPI: one Pydantic `RecipeContent` model can validate scraper output, model
 output, API requests, and stored revisions, and generate the frontend types. Google
@@ -35,7 +34,7 @@ handles credentials, leaving invites and sessions to build.
 
 ## Layout
 
-    backend/    FastAPI app, job worker, migrations, tests
+    backend/    FastAPI app, migrations, tests
     frontend/   Vite + React app
     deploy/     systemd units, nginx config, backup script
     docs/
@@ -50,7 +49,7 @@ handles credentials, leaving invites and sessions to build.
 | `recipe` | owner_id, visibility, current_number, forked_from_id, search copies of content, deleted_at |
 | `revision` | recipe_id, number, parent_id, author_id, message, content (JSONB), created_at |
 | `favorite`, `rating`, `comment` | user and recipe, plus stars or text |
-| `import_job` (phase 2) | user_id, source_type, source_ref, status, draft (JSONB), error, cost |
+| `import_job` | user_id, used_model, cost, created_at; nothing of what was imported |
 | `image` | owner_id; file named by id |
 
 Rules:
@@ -118,14 +117,16 @@ several groups). `visibility` gains a `group` value. To make that cheap:
 | Source | Extraction |
 |---|---|
 | URL | recipe-scrapers; fall back to model on page text |
-| JSON / text file | direct parse (schema.org, Cooklang) or model |
-| PDF | text layer; fall back to vision |
+| HTML / JSON file | schema.org recipe data; fall back to model |
+| Text / Word file | model |
+| PDF (up to 10 pages) | vision model |
 | Photo | vision model |
 
-Extraction runs as a job. Nothing is published without user review.
+Extraction runs within the request (at most 4 at once, each step time-limited) and only
+fills in the editor. Nothing is saved as a recipe without user review.
 
 The model sits behind one `extract()` interface so it can be swapped. Starting limits:
-20 model imports per user per day, $10 per month for the app, and prepaid provider
+100 imports and 20 model imports per user per day, $10 per month for the app, and prepaid provider
 credit without auto-reload. Model names and prices are configuration, not code.
 
 ## Hosting
@@ -133,7 +134,7 @@ credit without auto-reload. Model names and prices are configuration, not code.
     Cloudflare Tunnel -> nginx -> frontend static files
                               \-> /api -> FastAPI (localhost) -> Postgres
 
-- systemd services for API and worker, running as a dedicated user
+- systemd service for the API, running as a dedicated user
 - Ports 8000 and 8080 are in use on twilight; use 8100 if free
 - Node is only needed to build, not to run
 - Nightly `pg_dump` plus images, copied off the server, with a tested restore
@@ -155,7 +156,7 @@ credit without auto-reload. Model names and prices are configuration, not code.
 1. **Core:** invites and Google login; recipe create, edit, view; revision history and
    restore; photos, search, tags, scaling, printing; saved recipes, ratings, comments;
    fork with credit and comparison. Built. Remaining: deployment and backups
-2. **Import:** URL, then file, then photo
+2. **Import:** URL, file, photo. Built; model sources need `TH_ANTHROPIC_API_KEY`
 3. **Fork extras:** visual family tree, "original has changed" notices
 4. **Social:** "I made this", suggested changes, collections
 5. **Future:** community groups, meal planning, shopping lists

@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from .config import get_settings
-from .routers import admin, auth, images, recipes
+from .routers import admin, auth, images, imports, recipes
 
 
 def create_app() -> FastAPI:
@@ -36,7 +36,7 @@ def create_app() -> FastAPI:
     def health():
         return {"status": "ok"}
 
-    for module in (auth, admin, recipes, images):
+    for module in (auth, admin, recipes, images, imports):
         app.include_router(module.router)
     if not settings.is_production:
         app.post("/api/auth/dev-login", status_code=204, tags=["auth"])(auth.dev_login)

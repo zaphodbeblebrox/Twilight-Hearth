@@ -1,8 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { ApiError, api, imageUrl, useApi, type Content, type Recipe } from "../api";
+import { ApiError, api, imageUrl, useApi, type Content, type Imported, type Recipe } from "../api";
 import { Problem } from "../components";
+import { ImportDialog } from "./Import";
 
 type Row = { id: string; text: string };
 type Group = { id: string; name: string; items: Row[] };
@@ -65,6 +66,8 @@ function Form({ recipe }: { recipe?: Recipe }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [notice, setNotice] = useState("");
   const set = (part: Partial<Draft>) => setDraft((old) => ({ ...old, ...part }));
 
   async function run(work: () => Promise<void>) {
@@ -92,6 +95,27 @@ function Form({ recipe }: { recipe?: Recipe }) {
     });
   }
 
+  function fill({ content, notice }: Imported) {
+    const imported = toDraft(content);
+    setDraft((old) => ({
+      ...imported,
+      // Keep a photo that was already added, and somewhere to type what was not found.
+      image_id: imported.image_id ?? old.image_id,
+      ingredient_groups: imported.ingredient_groups.length ? imported.ingredient_groups : [group()],
+      steps: imported.steps.length ? imported.steps : [row()],
+    }));
+    setNotice(notice ?? "");
+    setError(null);
+    setImporting(false);
+  }
+
+  function startImport() {
+    const { title, description, notes, ingredient_groups, steps } = draft;
+    const rows = [...ingredient_groups.flatMap((g) => g.items), ...steps];
+    const written = [title, description, notes, ...rows.map((r) => r.text)].some((t) => t.trim());
+    if (!written || window.confirm("Importing replaces what is on this page. Continue?")) setImporting(true);
+  }
+
   function upload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -107,8 +131,15 @@ function Form({ recipe }: { recipe?: Recipe }) {
     set({ ingredient_groups: draft.ingredient_groups.map((g, i) => (i === index ? { ...g, ...part } : g)) });
 
   return (
-    <form onSubmit={save} className="mx-auto max-w-2xl space-y-5">
+    <div className="mx-auto max-w-2xl space-y-5">
+    <div className="flex items-center gap-4">
       <h1 className="text-3xl">{recipe ? "Edit recipe" : "New recipe"}</h1>
+      {!recipe && <button type="button" className="btn" disabled={busy} onClick={startImport}>Import</button>}
+    </div>
+    {/* Outside the recipe form, because forms cannot be nested. */}
+    {importing && <ImportDialog onClose={() => setImporting(false)} onImport={fill} />}
+    {notice && <p role="status" className="rounded-lg bg-dusk-100 p-3 text-sm">Recipe imported. {notice}</p>}
+    <form onSubmit={save} className="space-y-5">
       {recipe?.sources[0] && (
         <p className="text-sm text-dusk-500">
           Your own copy of a recipe by {recipe.sources[0].owner.display_name}. Credit is kept automatically.
@@ -174,6 +205,7 @@ function Form({ recipe }: { recipe?: Recipe }) {
         <button type="button" className="btn" onClick={() => navigate(-1)}>Cancel</button>
       </div>
     </form>
+    </div>
   );
 }
 

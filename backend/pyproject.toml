@@ -4,7 +4,9 @@ version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.1",
+    "anthropic>=2.14.0",
     "authlib>=1.9.10",
+    "beautifulsoup4>=4.15.0",
     "fastapi>=0.165.0",
     "httpx2>=2.16.2",
     "itsdangerous>=2.2.0",
@@ -12,7 +14,9 @@ dependencies = [
     "pillow-heif>=1.8.1",
     "psycopg[binary]>=3.3.9",
     "pydantic-settings>=2.16.3",
+    "pypdf>=7.1.1",
     "python-multipart>=0.0.34",
+    "recipe-scrapers>=15.14.0",
     "sqlalchemy>=2.1.9",
     "uvicorn[standard]>=0.54.0",
 ]

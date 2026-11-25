@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -6,6 +7,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
+    Numeric,
     String,
     Text,
     UniqueConstraint,
@@ -63,6 +65,18 @@ class Image(Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     owner_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     created_at: Mapped[datetime] = timestamp(default=now)
+
+
+class ImportJob(Base):
+    """One recipe import, kept to enforce the limits. Holds nothing of what was imported."""
+
+    __tablename__ = "import_jobs"
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    used_model: Mapped[bool] = mapped_column(default=False)
+    # Set to an upper estimate while the model runs, then to the real cost.
+    cost: Mapped[Decimal] = mapped_column(Numeric(10, 6), default=Decimal(0))
+    created_at: Mapped[datetime] = timestamp(default=now, index=True)
 
 
 class Recipe(Base):

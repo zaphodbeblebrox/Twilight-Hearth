@@ -48,13 +48,17 @@ def upload(
     data = file.file.read(settings.max_upload_bytes + 1)
     if len(data) > settings.max_upload_bytes:
         raise HTTPException(413, "Image is too large")
-    cleaned = clean_image(data)
+    return ImageOut.model_validate(save_image(db, user, clean_image(data)))
+
+
+def save_image(db: Session, user: User, cleaned: bytes) -> Image:
+    settings = get_settings()
     image = Image(id=uuid4(), owner_id=user.id)
     settings.media_dir.mkdir(parents=True, exist_ok=True)
     (settings.media_dir / f"{image.id}.webp").write_bytes(cleaned)
     db.add(image)
     db.commit()
-    return ImageOut.model_validate(image)
+    return image
 
 
 @router.get("/{image_id}", include_in_schema=False)

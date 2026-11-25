@@ -17,6 +17,8 @@ ports and nginx site.
 1. Copy this folder to the server and run `sudo bash setup.sh`. Run it again after
    changing anything in this folder.
 2. `sudoedit /etc/twilight-hearth/app.env` and fill in the Google client id and secret.
+   For importing photos and documents, also add `TH_ANTHROPIC_API_KEY`, from a workspace
+   with prepaid credit and no auto-reload.
 3. `sudo twilight-hearth-deploy`
 4. In the Cloudflare tunnel, add public hostname `twilight-hearth.net` with service
    `http://localhost:8110`.

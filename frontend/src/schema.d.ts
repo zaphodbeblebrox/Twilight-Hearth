@@ -424,6 +424,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/imports/url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import Url */
+        post: operations["import_url_api_imports_url_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import File */
+        post: operations["import_file_api_imports_file_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/dev-login": {
         parameters: {
             query?: never;
@@ -476,6 +510,11 @@ export interface components {
             /** Dev Login */
             dev_login: boolean;
         };
+        /** Body_import_file_api_imports_file_post */
+        Body_import_file_api_imports_file_post: {
+            /** File */
+            file: string;
+        };
         /** Body_upload_api_images_post */
         Body_upload_api_images_post: {
             /** File */
@@ -521,6 +560,23 @@ export interface components {
              * Format: uuid
              */
             id: string;
+        };
+        /**
+         * ImportOut
+         * @description A draft for the member to check. Nothing is saved as a recipe.
+         */
+        ImportOut: {
+            content: components["schemas"]["RecipeContent"];
+            /**
+             * Notice
+             * @default
+             */
+            notice: string;
+        };
+        /** ImportUrlIn */
+        ImportUrlIn: {
+            /** Url */
+            url: string;
         };
         /** Ingredient */
         Ingredient: {
@@ -1794,6 +1850,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_url_api_imports_url_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportUrlIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_file_api_imports_file_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_file_api_imports_file_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportOut"];
                 };
             };
             /** @description Validation Error */

@@ -1249,6 +1249,88 @@
     }
    }
   },
+  "/api/imports/url": {
+   "post": {
+    "tags": [
+     "imports"
+    ],
+    "summary": "Import Url",
+    "operationId": "import_url_api_imports_url_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ImportUrlIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ImportOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/imports/file": {
+   "post": {
+    "tags": [
+     "imports"
+    ],
+    "summary": "Import File",
+    "operationId": "import_file_api_imports_file_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_import_file_api_imports_file_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ImportOut"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/auth/dev-login": {
    "post": {
     "tags": [
@@ -1352,6 +1434,20 @@
      "dev_login"
     ],
     "title": "AuthConfigOut"
+   },
+   "Body_import_file_api_imports_file_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_import_file_api_imports_file_post"
    },
    "Body_upload_api_images_post": {
     "properties": {
@@ -1459,6 +1555,39 @@
      "id"
     ],
     "title": "ImageOut"
+   },
+   "ImportOut": {
+    "properties": {
+     "content": {
+      "$ref": "#/components/schemas/RecipeContent"
+     },
+     "notice": {
+      "type": "string",
+      "title": "Notice",
+      "default": ""
+     }
+    },
+    "type": "object",
+    "required": [
+     "content"
+    ],
+    "title": "ImportOut",
+    "description": "A draft for the member to check. Nothing is saved as a recipe."
+   },
+   "ImportUrlIn": {
+    "properties": {
+     "url": {
+      "type": "string",
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Url"
+     }
+    },
+    "type": "object",
+    "required": [
+     "url"
+    ],
+    "title": "ImportUrlIn"
    },
    "Ingredient": {
     "properties": {

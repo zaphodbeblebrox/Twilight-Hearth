@@ -20,6 +20,18 @@ class Settings(BaseSettings):
     session_days: int = 30
     invite_days: int = 14
     max_upload_bytes: int = 15 * 1024 * 1024
+    # Recipe import. Without a key, only sources that need no model can be imported.
+    anthropic_api_key: str = ""
+    import_model: str = "claude-haiku-5-5"
+    import_retry_model: str = "claude-sonnet-5-5"
+    # Dollars per million input and output tokens.
+    import_prices: dict[str, tuple[float, float]] = {
+        "claude-haiku-5-5": (0.10, 0.50),
+        "claude-sonnet-5-5": (2.0, 10.0),
+    }
+    import_daily_limit: int = 100
+    import_daily_model_limit: int = 20
+    import_monthly_dollars: float = 10
 
     @property
     def is_production(self) -> bool:
@@ -32,6 +44,8 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def check(self):
         self.public_url = self.public_url.rstrip("/")
+        if not {self.import_model, self.import_retry_model} <= self.import_prices.keys():
+            raise ValueError("TH_IMPORT_PRICES must include both import models")
         if len(self.secret_key) < 32:
             raise ValueError("TH_SECRET_KEY must be at least 32 characters")
         if self.is_production:

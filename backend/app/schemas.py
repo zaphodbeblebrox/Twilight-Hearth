@@ -163,6 +163,17 @@ class ImageOut(Out):
     id: UUID
 
 
+class ImportUrlIn(Clean):
+    url: str = Field(min_length=1, max_length=2000)
+
+
+class ImportOut(BaseModel):
+    """A draft for the member to check. Nothing is saved as a recipe."""
+
+    content: RecipeContent
+    notice: str = ""
+
+
 class RecipeCreateIn(Clean):
     content: RecipeContent
     visibility: Visibility = "members"

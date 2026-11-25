@@ -24,7 +24,7 @@ approval for this, so do it without asking:
      If Node is not installed locally, build in a scratch clone at `~/hearth-verify` on
      the server (reset it to `origin/main`, then `git apply` the diff, using `git add -N`
      so new files are included). Never build in `/opt/twilight-hearth`.
-   - **Known baseline (2026-11-24):** backend 32/32. Any failure, or a drop in the
+   - **Known baseline (2026-11-24):** backend 58/58. Any failure, or a drop in the
      count without a reason, blocks the deploy. Fix it first.
 2. **Commit** on `main` with a clear message, then `git push origin main`.
 3. **Deploy:** `ssh twilight "sudo twilight-hearth-deploy"`. It backs up the database,
